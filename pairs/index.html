@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8">
+	<title>Pairs - Memory Game</title>
+	<link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+	<link rel="stylesheet" href="css/pairs.css">
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+	<script src="js/pairs.js"></script>
+	<script>
+		$(function() {
+			new Pairs('#pairs-container', {
+				col: 4,
+				row: 3,
+			});
+		});
+	</script>
+</head>
+<body>
+
+<main class="container">
+	<div id="pairs-container"></div>
+</main>
+
+</body>
+</html>
