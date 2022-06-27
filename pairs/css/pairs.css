@@ -5,23 +5,50 @@
 }
 #pairs-container {
 	display: grid;
-	gap: 5px;
+	gap: 8px;
 	padding: 5px;
 	user-select: none;}
 
 #pairs-container .pair-item {
-	border: 1px solid gray;
+	perspective: 1000px;
 }
 
-#pairs-container .pair-item .pair-item-content {
+#pairs-container .pair-item .pair-item-inner {
+	border: 5px solid darkgray;
+	position: relative;
+	height: 100%;
+	transition: transform 0.5s;
+	transform-style: preserve-3d;
+}
+
+#pairs-container .pair-item .pair-item-inner.flip {
+	transform: rotateY(180deg);
+}
+
+#pairs-container .pair-item .pair-item-inner.found {
+	border: 5px solid dodgerblue;
+	background-color: skyblue;
+	cursor: default;
+}
+
+#pairs-container .pair-item .pair-item-inner.select {
+	transform: scale(1.02);
+	border: 5px solid darkorange;
+	background-color: orange;
+	cursor: default;
+}
+
+#pairs-container .pair-item .pair-item-inner .pair-item-content, #pairs-container .pair-item .pair-item-inner .pair-item-back {
+	position: absolute;
 	display: flex;
 	justify-content: center;
 	align-items: center;
 	width: 100%;
 	height: 100%;
 	cursor: pointer;
+	backface-visibility: hidden;
 }
-#pairs-container .pair-item .pair-item-content.found {
-	background-color: #eef;
-	cursor: default;
+#pairs-container .pair-item .pair-item-inner .pair-item-back {
+	background-color: lightgrey;
+	transform: rotateY(180deg);
 }

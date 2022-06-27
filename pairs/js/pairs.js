@@ -44,9 +44,9 @@ class Pairs {
 
 	end() {
 		console.log('END');
-		setTimeout(_ => {
+		this.delay(1000).then(_ => {
 			alert('END');
-		}, 500);
+		});
 	}
 
 	initContainer() {
@@ -59,18 +59,22 @@ class Pairs {
 		});
 	}
 
-	preview() {
-		const timeout = 2000;
+	async preview() {
+		const timeout = 3000;
 		this.ignoreAction = true;
-		this.items.forEach((item) => {
-			item.show();
-		});
-		setTimeout(_ => {
-			this.items.forEach((item) => {
-				item.hide();
-			});
-			this.ignoreAction = false;
-		}, timeout);
+
+		for (let i=0; i<this.items.length; i++) {
+			await this.delay(50);
+			this.items[i].show();
+		}
+
+		await this.delay(timeout);
+
+		for (let i=0; i<this.items.length; i++) {
+			await this.delay(50);
+			this.items[i].hide();
+		}
+		this.ignoreAction = false;
 	}
 
 	getItems(itemCount) {
@@ -99,7 +103,7 @@ class Pairs {
 		}
 
 		console.log(item, this.prev);
-		item.show();
+		item.setSelect();
 
 		if (!this.prev) {
 			this.prev = item;
@@ -114,9 +118,20 @@ class Pairs {
 
 		this.prev = null;
 		if (prev.id === item.id) {
-			prev.setFound();
-			item.setFound();
 			this.foundCount++;
+			this.delay(500).then(_ => {
+
+				prev.setFound();
+				item.setFound();
+
+				if (this.foundCount === this.itemCount - 1) {
+					this.items.forEach(item => {
+						item.setFound();
+					});
+					this.foundCount++;
+					this.end();
+				}
+			});
 
 			if (this.foundCount >= this.itemCount) {
 				this.end();
@@ -125,11 +140,19 @@ class Pairs {
 		}
 
 		this.ignoreAction = true;
-		setTimeout(_ => {
+		this.delay(1000).then(_ => {
 			prev.hide();
 			item.hide();
 			this.ignoreAction = false;
-		}, 1000);
+		});
+	}
+
+	delay(delay) {
+		return new Promise((resolve) => {
+			setTimeout(_ => {
+				resolve();
+			}, delay)
+		});
 	}
 }
 
@@ -143,6 +166,7 @@ class PairItem {
 		this.controller = controller;
 		this.item = this.initItem();
 		this.found = false;
+		this.hide();
 	}
 
 	initItem() {
@@ -155,7 +179,7 @@ class PairItem {
 				}
 				this.controller.onClick(this);
 			});
-		item.content = $(`<div class="pair-item-content">${this.content}</div>`).appendTo(item);
+		item.content = $(`<div class="pair-item-inner"><div class="pair-item-content">${this.content}</div><div class="pair-item-back"></div></div>`).appendTo(item);
 
 		return item;
 	}
@@ -166,18 +190,20 @@ class PairItem {
 
 	setFound() {
 		this.found = true;
-		$(this.item.content).addClass('found');
+		$(this.item.content).removeClass('select flip').addClass('found');
 	}
 
-	isVisible() {
-		return this.item.content.is(':visible');
+	setSelect() {
+		$(this.item.content).removeClass('flip').addClass('select');
 	}
 
 	show() {
-		this.item.content.show();
+		//this.item.content.show();
+		$(this.item.content).removeClass('flip');
 	}
 
 	hide() {
-		this.item.content.hide();
+		//this.item.content.hide();
+		$(this.item.content).removeClass('select').addClass('flip');
 	}
 }
