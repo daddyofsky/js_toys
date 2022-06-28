@@ -1,9 +1,17 @@
 .container {
-	display: flex;
-	justify-content: center;
-	align-items: center;
+	display: grid;
+	justify-items: center;
 }
+
+footer {
+	display: block;
+	width: 300px;
+	margin: 10px;
+	text-align: center;
+}
+
 #pairs-container {
+	margin: 20px auto;
 	display: grid;
 	gap: 8px;
 	padding: 5px;

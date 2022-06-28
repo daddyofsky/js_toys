@@ -9,17 +9,50 @@
 	<script src="js/pairs.js"></script>
 	<script>
 		$(function() {
-			new Pairs('#pairs-container', {
-				col: 4,
-				row: 3,
+			const pairs = new Pairs('#pairs-container');
+
+			const $levelBox = $('.level-box');
+			$('#button').on('click', async function() {
+				if (pairs.isOnGame()) {
+					return;
+				}
+
+				$levelBox.hide();
+				$(this).css('opacity', 0.5);
+
+				await pairs.start();
+
+				$(this).css('opacity', 1);
+				$levelBox.show();
 			});
+
+			$levelBox.find('a[data-level]').on('click', function(e) {
+				e.preventDefault();
+				const level = $(this).data('level');
+				pairs.setLevel(level);
+				btnSelect(this);
+			}).eq(0).trigger('click');
 		});
+
+		function btnSelect(btn) {
+			$('.level-box').find('a').removeClass('primary').addClass('secondary');
+			$(btn).removeClass('secondary').addClass('primary');
+		}
+
 	</script>
 </head>
 <body>
 
 <main class="container">
 	<div id="pairs-container"></div>
+	<footer>
+		<button id="button">시작</button>
+		<div class="level-box">
+			<a href="#" id="level-easy" data-level="1" role="button" class="secondary">쉬움</a>
+			<a href="#" id="level-normal" data-level="2" role="button" class="secondary">보통</a>
+			<a href="#" id="level-hard" data-level="3" role="button" class="secondary">어려움</a>
+		</div>
+	</footer>
 </main>
 
 </body>

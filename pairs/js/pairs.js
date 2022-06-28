@@ -2,16 +2,68 @@
  * Pairs memory game
  */
 class Pairs {
-	constructor(container, option) {
-		this.ignoreAction = false;
-		this.option       = Object.assign({
-			col: 5,
-			row: 4,
-			size: 100,
-		}, option || {});
+	levelInfo = {
+		1 : { col: 3, row: 2, previewTime: 1000 },
+		2 : { col: 4, row: 4, previewTime: 3000 },
+		3 : { col: 6, row: 5, previewTime: 5000 },
+	}
 
-		this.col = parseInt(this.option.col, 10) || 5;
-		this.row = parseInt(this.option.row, 10) || 4;
+	constructor(container, level = 0) {
+		this.onGame = false;
+		this.ignoreAction = false;
+		this.level = level;
+		this.size = 100;
+
+		this.container = $(container);
+
+		if (level) {
+			this.setLevel(this.level);
+		}
+	}
+
+	/**
+	 * start game
+	 */
+	async start() {
+		if (this.onGame) {
+			return;
+		}
+
+		this.onGame = true;
+		this.initContainer();
+		await this.preview();
+
+		return new Promise((resolve) => {
+			let timer = setInterval(_ => {
+				if (!this.onGame) {
+					clearInterval(timer);
+					resolve();
+				}
+			}, 500);
+		});
+	}
+
+	end() {
+		this.delay(500).then(_ => {
+			this.onGame = false;
+			//alert('END');
+		});
+	}
+
+	isOnGame() {
+		return this.onGame;
+	}
+
+	setLevel(level) {
+		if (this.onGame) {
+			return;
+		}
+
+		const { col, row, previewTime } = this.levelInfo[level] || this.levelInfo[1];
+
+		this.col = parseInt(col, 10) || 3;
+		this.row = parseInt(row, 10) || 2;
+		this.previewTime = parseInt(previewTime, 10) || 1000;
 		this.count = this.col * this.row;
 		if (this.count % 2) {
 			this.row++;
@@ -19,39 +71,18 @@ class Pairs {
 		}
 		this.itemCount = this.count / 2;
 
-		this.size = parseInt(this.option.size, 10) || 100;
-
-		this.container = $(container)
+		$(this.container)
 			.css({
 				grid: `repeat(${this.row}, ${this.size}px) / repeat(${this.col}, ${this.size}px)`,
 			});
 
-		this.start();
-	}
-
-	/**
-	 * start game
-	 */
-	start() {
-		console.log('start');
-		this.items = [];
-		this.prev = null;
-		this.foundCount = 0;
-
 		this.initContainer();
-		this.preview();
-	}
-
-	end() {
-		console.log('END');
-		this.delay(1000).then(_ => {
-			alert('END');
-		});
 	}
 
 	initContainer() {
+		this.prev = null;
+		this.foundCount = 0;
 		this.items = this.getItems(this.itemCount);
-		console.log(this.items, this.itemCount);
 
 		this.container.html('');
 		this.items.forEach((item) => {
@@ -60,7 +91,6 @@ class Pairs {
 	}
 
 	async preview() {
-		const timeout = 3000;
 		this.ignoreAction = true;
 
 		for (let i=0; i<this.items.length; i++) {
@@ -68,7 +98,7 @@ class Pairs {
 			this.items[i].show();
 		}
 
-		await this.delay(timeout);
+		await this.delay(this.previewTime);
 
 		for (let i=0; i<this.items.length; i++) {
 			await this.delay(50);
@@ -97,12 +127,10 @@ class Pairs {
 	}
 
 	onClick(item) {
-		if (this.ignoreAction) {
-			console.log('block');
+		if (!this.onGame || this.ignoreAction) {
 			return;
 		}
 
-		console.log(item, this.prev);
 		item.setSelect();
 
 		if (!this.prev) {
@@ -112,7 +140,6 @@ class Pairs {
 
 		const prev = this.prev;
 		if (prev === item) {
-			console.log('same');
 			return;
 		}
 
